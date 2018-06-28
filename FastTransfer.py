@@ -16,12 +16,12 @@ from ImageTransformation import ImageTransformation
 
 class FastTransfer:
     def __init__(self, content_layers, style_layers, style_image,
-                 lambda_content, lambda_style, lambda_tv):
+                 lambda_content, lambda_style, lambda_tv, print_image):
         #content_layers and style_layers should be dicts: {name: weight}
         self.net = VGG16('./imagenet-vgg-verydeep-16.mat')
         self.content_layers = content_layers
         self.style_layers = style_layers
-        self.content = np.float32(content_image)
+        # self.content = np.float32(content_image)
         self.style = np.float32(style_image)
         self.lambda_content= lambda_content
         self.lambda_style = lambda_style
@@ -39,6 +39,7 @@ class FastTransfer:
         # self.img = self.transform_net(tf.reshape(tf.constant(content_image - self.mean, dtype='float32'), (1, self.shape[0], self.shape[1], self.shape[2])))
 
         self.count = 0 # count update
+        self.print = print_image
         
         
         # self._built_net()
@@ -109,7 +110,7 @@ class FastTransfer:
             sess.run(tf.global_variables_initializer())
             # for i in range(self.iteration):
             _, loss, target_image = sess.run([optimizer, self.total_loss, self.img])
-            if self.count % 100 == 0:
+            if self.count % self.print == 0:
                 print('loss:', loss)
                 image = np.clip(target_image + self.mean, 0, 255).astype('uint8')
                 image = image.reshape(self.shape)
