@@ -42,7 +42,7 @@ class ResidualBlock():
         return x + h
 
 
-class FastStyleNet():
+class ImageTransformation():
     def __init__(self, train=True, data_dict=None):
         self.c1 = weight_variable([9, 9, 3, 32], name='t_conv1_w')
         self.c2 = weight_variable([4, 4, 32, 64], name='t_conv2_w')

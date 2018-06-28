@@ -12,7 +12,7 @@ from VGG16 import VGG16
 import tensorflow as tf
 from PIL import Image
 import numpy as np
-from net import FastStyleNet
+from ImageTransformation import ImageTransformation
 
 class FastTransfer:
     def __init__(self, content_layers, style_layers, content_image,
@@ -32,7 +32,7 @@ class FastTransfer:
         self.style = tf.constant(style_image - self.mean, name='style')
 
         # Image Transformation
-        self.transform_net = FastStyleNet()
+        self.transform_net = ImageTransformation()
         # print(tf.constant(content_image - self.mean, dtype='float32'))
         self.shape = content_image.shape
         self.img = self.transform_net(tf.reshape(tf.constant(content_image - self.mean, dtype='float32'), (1, self.shape[0], self.shape[1], self.shape[2])))
