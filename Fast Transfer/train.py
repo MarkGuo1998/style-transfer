@@ -13,7 +13,7 @@ style_layer = {'relu1_2': 0.25, 'relu2_2': 0.25, 'relu3_3': 0.25, 'relu4_3': 0.2
 
 model = FastTransfer(content_layers=content_layer, style_layers=style_layer, 
 					 style_image=style_img, lambda_content=0.05, lambda_style=1, 
-					 lambda_tv=1e-5, print_image=10, path='./model/', restore_flag=0)
+					 lambda_tv=1e-5, print_loss=100, path='./model/', learning_rate=1e-3, restore_flag=0)
 
 # model.update(learning_rate=0.1, content_image=content_img)
 
@@ -24,6 +24,6 @@ for root, dir, files in os.walk('./val2017'):
 	        img = Image.open(os.path.join(root, image_name))
 	        img = np.array(img.resize((256, 256))).astype('float32')
 	        # print(img.shape)
-	        model.update(content_image=img, learning_rate=1e-3)
+	        model.update(content_image=img)
 	    
 
