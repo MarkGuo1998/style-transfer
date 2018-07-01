@@ -251,7 +251,10 @@ class FastTransfer:
         # with tf.Session() as sess:
         # self.sess.run(tf.global_variables_initializer())
             # for i in range(self.iteration):
-        _, loss= self.sess.run([self.optimizer, self.total_loss], feed_dict={self.content_image: [content_image - self.mean], self.img: [content_image], self.style: [self.style_image]})
+        _, loss= self.sess.run([self.optimizer, self.total_loss], 
+                                feed_dict={self.content_image: [content_image - self.mean], 
+                                           self.img: [content_image - self.mean], 
+                                           self.style: [self.style_image]})
         if self.count % self.print == 0:
             self.save()
             print('loss:', loss)

@@ -23,7 +23,8 @@ for root, dir, files in os.walk('./val2017'):
 	    for image_name in file:
 	        img = Image.open(os.path.join(root, image_name))
 	        img = np.array(img.resize((256, 256))).astype('float32')
-	        # print(img.shape)
-	        model.update(content_image=img)
+	        if len(img.shape) == 3:
+	        	# print(img.shape)
+	        	model.update(content_image=img)
 	    
 
