@@ -54,7 +54,15 @@ VGG, proposed by \cite{1409.1556}, is one of the most popular deep neural networ
 
 \subsection{Style Transfer}
 
-Transferring the style from one image onto another can be considered a problem of texture transfer, whose goal is to synthesize a texture from a source image while constraining the texture synthesis in order to preserve the semantic content of a target image. Texture transfer algorithms use only low-level image features of the target image to inform the texture transfer. Ideally, however, a style transfer algorithm should be able to extract the semantic image content from the target image and then inform a texture transfer procedure to render the semantic content of the target image in the style of the source image. Inspired by the power of \emph{Convolutional Neural Networks (CNN)}, \cite{1508.06576} proposed a framework to model the content or style of an image through a pre-trained CNN. Moreover, \emph{A Neural Algorithm of Artistic Style} was proposed to separate and recombine the image content and style of natural images, which opened up a new field--Neural Style Transfer. However, the biggest drawback of this algorithm is that it runs too slow. To tackle this, \cite{1603.08155} proposed a \emph{Fast Style Transfer} algorithm. It introduced an \emph{Image Transform Net}, a feed-forward network that is trained to solve the optimization problem proposed by \cite{1508.06576} in real-time.
+Transferring the style from one image onto another (Figure \ref{fig:intro}) can be considered a problem of texture transfer, whose goal is to synthesize a texture from a source image while constraining the texture synthesis in order to preserve the semantic content of a target image. Texture transfer algorithms use only low-level image features of the target image to inform the texture transfer. Ideally, however, a style transfer algorithm should be able to extract the semantic image content from the target image and then inform a texture transfer procedure to render the semantic content of the target image in the style of the source image. Inspired by the power of \emph{Convolutional Neural Networks (CNN)}, \cite{1508.06576} proposed a framework to model the content or style of an image through a pre-trained CNN. Moreover, \emph{A Neural Algorithm of Artistic Style} was proposed to separate and recombine the image content and style of natural images, which opened up a new field--Neural Style Transfer. However, the biggest drawback of this algorithm is that it runs too slow. To tackle this, \cite{1603.08155} proposed a \emph{Fast Style Transfer} algorithm. It introduced an \emph{Image Transform Net}, a feed-forward network that is trained to solve the optimization problem proposed by \cite{1508.06576} in real-time.
+\begin{figure}[h]
+\centering
+\includegraphics[height=6cm, width=10cm]{intro.png}
+\label{fig:intro}
+\caption{An sxample of Style Transfer}
+
+\end{figure}
+
 
 
 \section{Model}
@@ -63,12 +71,7 @@ Transferring the style from one image onto another can be considered a problem o
 \emph{A Neural Algorithm of Artistic Style}, proposed by \cite{1508.06576}, is generated on the basis of pre-trained VGG19 network, which contains 16 convolutional and 5 pooling layers. Before we introduce the algorithm (shown in Figure \ref{fig:naas}), it is of great importance to notice that what differs this style transfer framework from other deep learning networks is that the different objects they does gradient descent on. In conventional deep learning networks, the network fixes the input and trains the weights by optimizing loss function. However, in this style transfer framework, a pre-trained network is used. In other words, the network trains its input with fixed weight by optimizing its loss function.\\
 
 The process of the algorithm is as follows: (1) let three images pass forward through pre-trained VGG19, including content image, style image, and the the initialized 'image' we want to generate. (2) optimize the loss function and revise the 'image' using a stochastic gradient descent algorithm. In the above process, the content and style images are fixed and the initialized 'image' could be a white noise or the original content (style) image. The loss function contains two parts: the content loss and the style loss.
-\begin{figure}[t]
-\centering
-\includegraphics[scale=0.35]{neuralstyletransfer.png}
-\label{fig:naas}
-\caption{A Neural Algorithm of Artistic Style}
-\end{figure}
+
 \begin{itemize}
 \item \textbf{Content Loss}: Let $\vec{p}$ and $\vec{x}$ be the content image and the image that is generated, and $P^l$ and $F^l\in \mathcal{R}^{N_l\times M_l}$ their respective feature representation in layer $l$, where $N_l$ and $M_l$ denotes the number of filters and the size of each feature map respectively. We then define the squared-error loss between the two feature representations as the content loss on layer $l$:
 $$\mathcal{L}_{content}(\vec{p}, \vec{x}, l)=\frac{1}{2}||F^l-P^l||_F^2$$
@@ -80,19 +83,27 @@ $$\mathcal{L}_{style}(\vec{a},\vec{x})=\sum_{l \text{ is a style layer}}\omega_{
 where $\omega_l$ is the weight of layer $l$.
 \item \textbf{Total Loss}: The total loss is a combination of content loss and style loss, which is given by $$\mathcal{L}_{total}(\vec{a},\vec{p},\vec{x})=\alpha \mathcal{L}_{content}(\vec{p},\vec{x}) + \beta \mathcal{L}_{style}(\vec{a},\vec{x})$$ where $\alpha$ and $\beta$ are the weighting factors for content and style reconstruction, respectively. Moreover, the loss ration is given by $\alpha/\beta$.
 \end{itemize}
+\begin{figure}[t]
+\centering
+\includegraphics[scale=0.35]{neuralstyletransfer.png}
+\label{fig:naas}
+\caption{A Neural Algorithm of Artistic Style}
+\end{figure}
 
 
 
 \subsection{Fast Style Transfer}
-\cite{1406.2661}
-\cite{1603.08155}\\
+\emph{A Neural Algorithm of Artistic Style} is computationally expensive since each step of the optimization problem requires a forward and backward pass through the pre-trained network. To overcome this computational burden, \cite{1603.08155} proposed a feed-forward network to quickly approximate solutions to the optimization problem.\\
+Similar with GAN, proposed by \cite{1406.2661}, \emph{Fast Style Transfer} includes a generative model--\emph{Image Transformation Network}, and a discriminative model--\emph{Loss Network}. The \emph{Image Transformation Network} could transfer a specific style onto an arbitrary image and the \emph{Loss Network} discriminates the transferred image and updates the weights in \emph{Image Transformation Network}. The network architecture is shown in Figure \ref{fig:fast}.\\
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.3]{fast.png}
-\label{fig: fast}
+\label{fig:fast}
 \caption{Fast Style Transfer: Image Transformation Network (left) and Loss Network (right).}
 \end{figure}
 
+\begin{itemize}
+\item \textbf{Image Transformation Network}: The basic of \emph{Image Transformation Network} is downsampling and upsampling, using convolutional and de-convolutional networks. The networks use two stride-2 convolutions to downsample the input followed by several residual blocks and then two convolutional layers with stride 1/2 to upsample. The networks architecture is presented in Table \ref{transform}. Moreover, the input $\vec{x}$ and output $\vec{\hat{x}}$ of the networks have the same size. It has two main advantages: (1)it is computational effective (2) each pixel in the output to have a large effective receptive field in the input.
 \begin{table}[h]
 \caption{Network architecture used for style transfer networks.}
 \label{transform}
@@ -119,6 +130,14 @@ $3\times9\times9$ conv, stride 1&$3\times256\times256$\\
 
 \end{tabular}
 \end{table}
+\item \textbf{Loss Network}: Similar with \cite{1508.06576}, the \emph{Loss Network} is actually a pre-trained VGG16 network, which provides the loss function for the \emph{Image Transformation Network}. The loss function includes content loss, style loss and a total variation regularizer $l_{TV}(\vec{\hat{x}})$:
+$$\mathcal{L}_{total}(\vec{a},\vec{p},\vec{\hat{x}})=\mathcal{L}_{content}(\vec{p}, \vec{\hat{x}}) + \mathcal{L}_{style}(\vec{a},\vec{\hat{x}}) + l_{TV}(\vec{\hat{x}})$$
+where the content loss and style loss are the same as \cite{1508.06576}.
+\end{itemize}
+
+
+
+
 
 
 \section{Experiments}
