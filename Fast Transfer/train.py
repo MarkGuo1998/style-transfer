@@ -25,4 +25,5 @@ for root, dir, files in os.walk('./val2017'):
 	        img = np.array(img.resize((256, 256))).astype('float32')
 	        # print(img.shape)
 	        model.update(content_image=img, learning_rate=1e-3)
+	    
 

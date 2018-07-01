@@ -17,7 +17,7 @@ model_path = './model/'
 
 class FastTransfer:
     def __init__(self, content_layers, style_layers, style_image,
-                 lambda_content, lambda_style, lambda_tv, print_image, path, restore_flag=0):
+                 lambda_content, lambda_style, lambda_tv, print_loss, path, restore_flag=0):
         #content_layers and style_layers should be dicts: {name: weight}
         self.net = VGG16('./imagenet-vgg-verydeep-16.mat')
         self.content_layers = content_layers
@@ -33,7 +33,7 @@ class FastTransfer:
         # self.content = tf.constant(content_image - self.mean, name='content')
         self.style = tf.constant(style_image - self.mean, name='style')
         self.path = path
-        self.save = tf.train.Saver()
+        self.saver = tf.train.Saver()
 
         # Image Transformation
         self.transform_net = ImageTransformation()
@@ -42,7 +42,7 @@ class FastTransfer:
         # self.img = self.transform_net(tf.reshape(tf.constant(content_image - self.mean, dtype='float32'), (1, self.shape[0], self.shape[1], self.shape[2])))
 
         self.count = 0 # count update
-        self.print = print_image
+        self.print = print_loss
         self.sess = tf.Session()
 
         self.sess.run(tf.global_variables_initializer())
@@ -103,11 +103,11 @@ class FastTransfer:
         return tf.matmul(tf.transpose(matrix), matrix)
 
     def save(self):
-        self.save.save(self.sess, self.path)
+        self.saver.save(self.sess, self.path)
     
     def update(self, content_image, learning_rate):
         if self.restore_flag == 1:
-            self.save.save(self.sess, self.path)
+            self.saver.restore(self.sess, self.path)
             self.restore_flag = 0
         self.img = self.transform_net(tf.reshape(tf.constant(content_image - self.mean, dtype='float32'), (1, self.shape[0], self.shape[1], self.shape[2])))
         self.content = tf.constant(content_image - self.mean, name='content')
@@ -123,7 +123,9 @@ class FastTransfer:
             # for i in range(self.iteration):
         _, loss, target_image = self.sess.run([optimizer, self.total_loss, self.img])
         if self.count % self.print == 0:
+            self.save()
             print('loss:', loss)
+
                 # image = np.clip(target_image + self.mean, 0, 255).astype('uint8')
                 # image = image.reshape(self.shape)
                 # img = Image.fromarray(image)
