@@ -26,11 +26,11 @@ def deconv2d(x, W, strides=[1, 1, 1, 1], p='SAME', name=None):
     _, _, c, _ = W.get_shape().as_list()
     b, h, w, _ = x.get_shape().as_list()
     return tf.nn.conv2d_transpose(x, W, [b, strides[1] * h, strides[1] * w, c], strides=strides, padding=p, name=name)
-
+'''
 def max_pool_2x2(x):
     assert isinstance(x, tf.Tensor)
     return tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
-
+'''
 
 class ResidualBlock():
     def __init__(self, idx, ksize=3, train=False, data_dict=None):

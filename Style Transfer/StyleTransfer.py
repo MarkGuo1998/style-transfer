@@ -7,7 +7,7 @@ Created on Mon Jun 25 10:49:11 2018
 """
 
 import sys
-sys.path.append('./DL Project')
+# sys.path.append('./DL Project')
 from VGG19 import VGG19
 import numpy as np
 import tensorflow as tf
@@ -35,7 +35,8 @@ class StyleTransfer:
             self.img = tf.Variable(init_image - self.mean, trainable=True, dtype=tf.float32)
         
         
-        
+        self.sess = tf.Session()
+        self.sess.run(tf.global_variables_initializer())
         self._built_net()
     
     def _built_net(self):
@@ -96,15 +97,15 @@ class StyleTransfer:
 
         add_global = global_step.assign_add(1)
         
-        with tf.Session() as sess:
-            sess.run(tf.global_variables_initializer())
-            for i in range(self.iteration):
-                _, g, loss, target_image = sess.run([optimizer, add_global, self.total_loss, self.img])
-                if i % 100 == 0:
-                    print('iteration:', i, 'loss:', loss)
-                    image = np.clip(target_image + self.mean, 0, 255).astype(np.uint8)
-                    img = Image.fromarray(image)
-                    img.save('./output/%d.jpg' % i)
+        # with tf.Session() as sess:
+        # self.sess.run(tf.global_variables_initializer())
+        for i in range(self.iteration):
+            _, g, loss, target_image = self.sess.run([optimizer, add_global, self.total_loss, self.img])
+            if i % 100 == 0:
+                print('iteration:', i, 'loss:', loss)
+                image = np.clip(target_image + self.mean, 0, 255).astype(np.uint8)
+                img = Image.fromarray(image)
+                img.save('./output/%d.jpg' % i)
         
 
         
